@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot</title>
+    <script>
+      async function sendMessage() {
+        const userInput = document.getElementById("user-input").value;
+        const responseContainer = document.getElementById("response");
+        const conversationContainer = document.getElementById("conversation");
+
+        // Clear the input box after sending the message
+        document.getElementById("user-input").value = "";
+
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ input: userInput }),
+        });
+
+        if (!response.ok) {
+          responseContainer.innerText = "Error: Unable to get response.";
+          return;
+        }
+
+        const data = await response.json();
+        if (data.response) {
+          // Update conversation display
+          conversationContainer.innerHTML += `<p><strong>User:</strong> ${userInput}</p>`;
+          conversationContainer.innerHTML += `<p><strong>Bot:</strong> ${data.response}</p>`;
+
+          // Scroll to the bottom of the conversation
+          conversationContainer.scrollTop = conversationContainer.scrollHeight;
+        } else {
+          responseContainer.innerText = "Error: No response from chatbot.";
+        }
+      }
+    </script>
+    <style>
+      #conversation {
+        border: 1px solid #ccc;
+        padding: 10px;
+        height: 300px;
+        overflow-y: scroll;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Chatbot</h1>
+    <div id="conversation">
+      <!-- Conversation history will be displayed here -->
+    </div>
+    <input
+      type="text"
+      id="user-input"
+      placeholder="Type your message here..."
+      autofocus
+    />
+    <button onclick="sendMessage()">Send</button>
+    <p id="response"></p>
+  </body>
+</html>
